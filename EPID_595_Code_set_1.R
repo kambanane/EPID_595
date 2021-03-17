@@ -1,4 +1,5 @@
 #### EPID 595 R code set 1: Variograms ####
+#### Constructing semi variograms #####
 
 
 ## First install all the packages that we need
