@@ -9,7 +9,7 @@
 #   variogram is contained in the gstat package. You can download the package from a CRAN repository.
 
 
-install.packages("gstat",repos="https://cloud.r-project.org")
+#install.packages("gstat",repos="https://cloud.r-project.org")
 ## 
 ## The downloaded binary packages are in
 ##  /var/folders/9n/gn30q9z56gv9qbdhfqjyfqn80000gn/T//RtmpKaLeoC/downloaded_packages

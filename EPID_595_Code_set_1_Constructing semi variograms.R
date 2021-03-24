@@ -3,7 +3,7 @@
 
 
 ## First install all the packages that we need
-#install.packages("gstat",repos="https://cloud.r-project.org")
+install.packages("gstat",repos="https://cloud.r-project.org")
 
 ##
 ## The downloaded binary packages are in
@@ -21,11 +21,11 @@ pm25.data <-
   )
 # To look at the names of the variables in the PM2.5 dataset, we can simply do the following:
 
-
 names(pm25.data)
 ##  [1] "Site.ID"          "Longitude"        "Latitude"         "UTM_Easting"
 ##  [5] "UTM_Northing"     "Location_setting" "Avg_PM25"         "Avg_temperature"
 ##  [9] "Average_ppt_amt"  "Density_pop"      "Elevation"
+
 # Here we are taking the individual columns in the PM2.5 dataset, and creating variables
 #within the R environment
 pm25 <- pm25.data$Avg_PM25
