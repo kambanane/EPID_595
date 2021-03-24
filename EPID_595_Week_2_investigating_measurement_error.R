@@ -37,7 +37,7 @@ library(geoR)
 ##  geoR version 1.8-1 (built on 2020-02-08) is now loaded
 ## --------------------------------------------------------------
 # Reading in the daily average PM2.5 concentration dataset 
-pm25.data <- read.table("Avg_PM25_Feb2019_California_and_other_vars.csv",sep=",",header=T)
+pm25.data <- read.table("Data/Avg_PM25_Feb2019_California_and_other_vars.csv",sep=",",header=T)
 
 pm25 <- pm25.data$Avg_PM25
 temperature <- pm25.data$Avg_temperature
