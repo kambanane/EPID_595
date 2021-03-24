@@ -51,7 +51,7 @@ elev <- pm25.data$Elevation
 
 
 # This is the fictitious dataset with the geographical coordinates of the babies for which we have birthweight data information. The dataset provides information on the babies' birthweight in kilogram, the values of the explanatory variables (daily average temperature, daily avg rainfall amount, population density and elevation) at the birthweight locations, and the geographical coordinates in two formats: latitude and longitude and Easting and Northing in kms.
-bw.data <- read.csv("Simulated_birthwt_Cali.csv",sep=",",header=T)
+bw.data <- read.csv("Data/Simulated_birthwt_Cali.csv",sep=",",header=T)
 names(bw.data)
 ## [1] "Longitude"   "Latitude"    "x_UTM_km"    "y_UTM_km"    "temperature"
 ## [6] "ppt"         "pop.density" "elevation"   "sim.bw"
@@ -72,22 +72,7 @@ y.coord.km <- y.coord/1000
 pm25.df <- data.frame(cbind(x.coord.km,y.coord.km,pm25,temperature,ppt,pop.dens,elev))
 emp.variog.pm25 <- variogram(pm25~temperature+ppt+pop.dens+elev,locations=~x.coord.km+y.coord.km,data=pm25.df)
 emp.variog.pm25
-##     np      dist    gamma dir.hor dir.ver   id
-## 1  114  17.82922 2.170668       0       0 var1
-## 2  177  42.70842 3.752572       0       0 var1
-## 3  254  71.32745 4.364023       0       0 var1
-## 4  298 100.01365 3.740616       0       0 var1
-## 5  361 128.39132 5.367459       0       0 var1
-## 6  383 156.50850 5.987330       0       0 var1
-## 7  320 183.86575 5.589148       0       0 var1
-## 8  295 212.83782 5.125567       0       0 var1
-## 9  317 241.71564 6.308610       0       0 var1
-## 10 321 269.80175 7.717730       0       0 var1
-## 11 287 297.44166 5.743690       0       0 var1
-## 12 243 326.84524 6.559499       0       0 var1
-## 13 257 355.19550 5.385841       0       0 var1
-## 14 219 382.69372 7.209512       0       0 var1
-## 15 227 412.23545 4.390867       0       0 var1
+
 plot(emp.variog.pm25)
 
 
@@ -120,7 +105,7 @@ pm25.bw.locs <- kc.uk.bw.locs$predict
 
 
 # Now that we have the estimated environmental exposure, e.g. the daily average PM2.5 concentration, 
-# we can estimate the health effect of PM2.5 daily average concentration on birthweiht by 
+# we can estimate the health effect of PM2.5 daily average concentration on birthweight by 
 # doing the following:
 
 health.effect <- lm(bw~pm25.bw.locs)
