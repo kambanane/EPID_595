@@ -1,11 +1,14 @@
+
 # Performing spatial interpolation in R
 # Performing spatial interpolation of point referenced data in R
 # This code shows how to estimate a spatial variable (e.g. an environmental exposure) at a location without observations.
-# Specifically the code will implement the methods of:(i) nearest monitor
+# Specifically the code will implement the methods of:
+# (i) nearest monitor
 # (ii) inverse distance weighting (IDW)
 # and (iii) kriging:Ordinary and Universal.
+
 # The R package that are needed are:fields (for calculating distances and mapping), gstat (for the empirical semi -
-#                                                                                            variogram and fitting a parametric semi - variogram to it), geoR (for kriging).
+# variogram and fitting a parametric semi - variogram to it), geoR (for kriging).
 # We will use as example the daily average PM2.5 concentration in California in February 2019.
 
 
@@ -39,8 +42,17 @@ bw.data <- read.csv("Data/Birthwt_locs_Cali.csv",
                     header = T)
 
 names(bw.data)
-## [1] "longitude"   "latitude"    "temperature" "ppt"         "pop.density"
-## [6] "elevation"
+
+### Make a map 
+bw.data.sp <- bw.data
+library(sp)
+coordinates(bw.data.sp) <- ~longitude+latitude
+
+pm25.data.sp <- pm25.data
+coordinates(pm25.data.sp) <- ~Longitude+Latitude
+
+plot(bw.data.sp, pch=16)
+plot(pm25.data.sp, pch=16, col="blue", add=TRUE)
 
 bw.lon <- bw.data$longitude
 bw.lat <- bw.data$latitude
@@ -50,11 +62,12 @@ bw.pop.dens <- bw.data$pop.density
 bw.elev <- bw.data$elevation
 
 
-# Taking a random location in the birtweight dataset for which we are going to estimate the environmental exposure, e.g. the daily average PM2.5 concentration.
+# Taking a random location in the birthweight dataset for which we are going to estimate the environmental exposure, 
+# e.g. the daily average PM2.5 concentration.
 index.loc <- 36
 
+#### Method of nearest monitor ####
 
-### Method of nearest monitor
 # For this method, we need to first calculate the distance between the selected location and the 
 # environmental exposure locations.
 Dist.pm25.bw <-
@@ -80,22 +93,35 @@ pm25[which.min(Dist.pm25.bw)]
 ## [1] 5.045757
 
 #### Inverse distance weighting ####
-# To calculated the estimated environmental exposure at the selected location according to the method of IDW, we need to take a weighted average of the environmental exposure data where the weights are inversely proportional to the distance the selected sites has to each environmental exposure location. The weights are then normalized so that they add up to 1. Once the weights have been normalized, the estimated environmental exposure at the selected location is a weighted average of the environmental exposure data with normalixed weights.
+
+# To calculate the estimated environmental exposure at the selected location according to the method of IDW, 
+# we need to take a weighted average of the environmental exposure data where the weights are 
+# inversely proportional to the distance the selected sites has to each environmental exposure location. 
+# The weights are then normalized so that they add up to 1. Once the weights have been normalized, 
+# the estimated environmental exposure at the selected location is a weighted average of the 
+# environmental exposure data with normalized weights.
 
 # Calculating the weights as the inverse distance b/w the selected location and the environmental exposure location
 idw.weights.loc <- 1 / as.numeric(as.numeric(Dist.pm25.bw))
+
 # This takes care of the normalization
 idw.weights.norm.loc <- idw.weights.loc / sum(idw.weights.loc)
+
 # The estimated exposure is then given by
 idw.pm25.sel.loc <- sum(idw.weights.norm.loc * pm25)
 idw.pm25.sel.loc
 
 ## [1] 5.853388
+
+#### KRIGING ####
+
 # Here we perform kriging.
 # To this goal, we first  construct the empirical semi-variogram for the residuals 
-# of the multiple linear regression model regressing daily average PM2.5 concentration on the covariates, i.e. daily average temperature, rainfall amount, population density and elevation.
-# Then we fit to it an parametric semi-variogram (here, an exponential) to the empirical semi-variogram.
+# of the multiple linear regression model regressing daily average PM2.5 concentration on the covariates, 
+# i.e. daily average temperature, rainfall amount, population density and elevation.
+# Then we fit to it a parametric semi-variogram (here, an exponential) to the empirical semi-variogram.
 # And we finally we run a spatial linear regression model to it.
+
 # We start by transforming Easting and Northing from  meters to kilometers.
 
 x.coord.km <- x.coord / 1000
@@ -131,7 +157,6 @@ est.psill
 est.range <- variog.pm25$range[2]
 est.range
 
-
 # Finally, we fit a spatial linear regression model to the daily average PM2.5 concentration.
 # The mean model includes the explanatory variables: daily average temperature, 
 # daily average rainfall amount, population density and elevation.
@@ -165,7 +190,8 @@ pm25.reml <-
   )
 
 
-# Having fitted the spatial linear regression model to the data, we can now perform kriging and estimate PM2.5 concentration at the selected location.
+# Having fitted the spatial linear regression model to the data, 
+# we can now perform kriging and estimate PM2.5 concentration at the selected location.
 # In order to do this, we first have to transform the coordinate of the selected location into Easting and Northing in km.
 # To transform latitude and longitude into Easting and Northing, we use the packages sp and rgdal.
 
@@ -226,6 +252,7 @@ kc.ok.s0 <-
 ## krige.conv: Kriging performed using global neighbourhood
 names(kc.ok.s0)
 
+## THIS IS THE PREDICTION ##
 # The predicted environmental exposure is stored into the part called "predict", 
 # while the kriging variance is what is stored into the part called "krige.var".
 kc.ok.s0$predict
@@ -249,6 +276,8 @@ ci.95.kc.ok
 # trend.d needs to provide the form of the mean model at the locations where we have observed the data: this is specified by "~" followed by the name of the explanatory variables at the environmental exposure locations.
 # trend.l needs to provide the form of the mean model where we want to estimate environmental exposure. The format is still "~" followd by the name of the explanatory variables at the location(s) where we want to predict the environmental exposure.
 # The remainder of the specifications for the krige.control are exactly the same as under ordinary kriging.
+
+#### UNIVERSAL KRIGING ####
 
 kc.uk.control <-
   krige.control(
