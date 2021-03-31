@@ -8,7 +8,6 @@
 # The birthweight data has been simulated under the assumption of a reduction in birthweight of 12grams (e.g. gamma =
 #                                                                                                          -0.012) per micrograms per cubic meter of PM2.5 concentration (the unit of measure of PM2.5 concentration). Effects of these magnitude have been reported in part of the scientific literature.
 
-
 #install.packages(c("fields","gstat","geoR"),repos="https://cloud.r-project.org")
 ##
 ## The downloaded binary packages are in
@@ -137,7 +136,6 @@ names(kc.uk.bw.locs)
 ## [6] "call"
 # The predicted environmental exposure is stored into the part called "predict".
 pm25.bw.locs <- kc.uk.bw.locs$predict
-
 
 # Now that we have the estimated environmental exposure, e.g. the daily average PM2.5 concentration,
 # we can estimate the health effect of PM2.5 daily average concentration on birthweight by

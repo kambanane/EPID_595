@@ -13,12 +13,12 @@
 # 
 
 
-install.packages("gstat", repos = "https://cloud.r-project.org")
+#install.packages("gstat", repos = "https://cloud.r-project.org")
 ## 
 ## The downloaded binary packages are in
 ##  /var/folders/9n/gn30q9z56gv9qbdhfqjyfqn80000gn/T//RtmpHTfyXs/downloaded_packages
 library(gstat)
-install.packages("geoR",repos="https://cloud.r-project.org")
+#install.packages("geoR",repos="https://cloud.r-project.org")
 ## 
 ## The downloaded binary packages are in
 ##  /var/folders/9n/gn30q9z56gv9qbdhfqjyfqn80000gn/T//RtmpHTfyXs/downloaded_packages
