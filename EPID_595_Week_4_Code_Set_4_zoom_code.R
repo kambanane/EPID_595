@@ -13,8 +13,6 @@
 # * The dataset that we will use for this analysis is a dataset providing information on the rates of burglaries per 1,000 people in Michigan during year 2006.
 # * Besides information on the rate of burglaries per 1,000 people in Michigan during year 2006, the dataset also reports information on unemployment rate and on the the median household income in 1,000 dollars. 
 
-
-knitr::opts_chunk$set(fig.width=12, fig.height=8) 
 # Installing the necessary packages
 install.packages(c("maps","maptools","spdep","RColorBrewer","classInt","CARBayes"),repos="https://cloud.r-project.org")
 library(maps)
