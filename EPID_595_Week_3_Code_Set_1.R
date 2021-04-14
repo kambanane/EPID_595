@@ -1,10 +1,20 @@
 # Fitting a Bayesian spatial linear regressions to house sale price data
+
 # Fitting a Bayesian spatial linear regression to point referenced data on house sale price
-# This code guides and ask to fit a Bayesian spatial linear regression model to point referenced data in R on house sale prices in Baton Rouge.
-# As noted in other instances, you will need the packages spBayes, gstat, fields, and maps to perform exploratory analysis and make maps.
+
+# This code guides and ask to fit a Bayesian spatial linear regression model to point referenced 
+# data in R on house sale prices in Baton Rouge.
+# As noted in other instances, you will need the packages spBayes, gstat, fields, and maps to 
+# perform exploratory analysis and make maps.
+
 # Additionally we download and install the package akima to obtain an algorithmic method for spatial interpolation.
-# The dataset that we will use is a dataset providing information on the sale price (on the log scale) of 70 houses in Baton Rouge, Louisiana.
-# Besides information on the log selling price, the dataset also provides information on: the Easting and Northing of the house, the latitude and longitude (for plotting purposes), the size of the living area within the house, the size of other areas in the house, age, number of bedrooms, number of bathrooms, number of half baths.
+
+# The dataset that we will use is a dataset providing information on the sale price (on the log scale) of 
+# 70 houses in Baton Rouge, Louisiana.
+# Besides information on the log selling price, the dataset also provides information on: 
+# the Easting and Northing of the house, the latitude and longitude (for plotting purposes), 
+# the size of the living area within the house, the size of other areas in the house, age, number of bedrooms, 
+# number of bathrooms, number of half baths.
 
 
 # Install these packages
@@ -21,7 +31,7 @@ library(akima)
 
 # Reading in the house sale price-data
 baton.data <-
-  read.table("Baton_Rouge_houses.csv", sep = ",", header = TRUE)
+  read.table("Data/Baton_Rouge_houses.csv", sep = ",", header = TRUE)
 
 dim(baton.data)
 
@@ -39,13 +49,13 @@ other <- baton.data$OtherArea
 baths <- baton.data$Bathrooms
 logprice <- baton.data$logSellingPr
 
-
 ### Plotting log selling price
 # Creating a fictitious grid just for plotting purposes
 lon.grid <- seq(min(lon), max(lon), len = 200)
 lat.grid <- seq(min(lat), max(lat), len = 200)
 z.mat <- matrix(NA, 200, 200)
 zlim <- range(logprice, na.rm = T)
+
 col <- color.scale(logprice, col = heat.colors(100)[100:1])
 image.plot(
   lon.grid,
@@ -95,6 +105,7 @@ price68.df[1:3, ]
 ## 1   690396.2    3363182    10.87616      1606     11      794        2
 ## 2   684576.0    3374180    10.54534       979      2      452        1
 ## 3   681534.1    3376912    10.59663      1144      0      584        2
+
 # The empirical semi-variogram is problematic if it is not truncated. Here we use only distances up to
 # 5000m and we use specific bins for distances.
 
@@ -128,6 +139,7 @@ exp.variog.price68
 ## 1   Nug 0.00000000   0.0000
 ## 2   Exp 0.01938659 198.7277
 
+## Partial Sill value that you will use for the scale parameter for the Gamma prior !! #
 est.psill.68 <- exp.variog.price68$psill[2]
 est.psill.68
 ## [1] 0.01938659
@@ -172,7 +184,7 @@ coords.68 <- as.matrix(cbind(x.coord.68, y.coord.68),
 # We set the shape to be equal to 2 and the scale parameter to be equal to the WLS estimate of the
 # partial sill.
 shape.sigma2 <- 2
-scale.sigma2 <- est.psill.68
+scale.sigma2 <- est.psill.68 ## Partial sill of the exponential variogram from above
 
 # tau^2: We specify an Inverse Gamma prior for the nugget effect.
 # We choose the shape to be equal to 2 and the scale parameter to be equal to its WLS estimate.
@@ -290,6 +302,7 @@ surf.w <- interp(x.coord.68, y.coord.68, as.numeric(w.summary[2, ]))
 # Here we create a plot of the interpolated estimates of spatial random effects.
 # Black dots denote locations where we have data.
 par(mfrow = c(1, 1), mai = c(1, 1, 1, 0.5))
+## Run this first
 image.plot(
   surf.w$x,
   surf.w$y,
@@ -300,6 +313,8 @@ image.plot(
   ylab = "Northing in km",
   main = "Interpolated posterior median \n of spatial random effects"
 )
+
+## Run this second
 contour(
   surf.w$x,
   surf.w$y,
@@ -345,6 +360,7 @@ post.pred.mean.last2
 price.last2 <- logprice[69:70]
 price.last2
 ## [1] 11.39392 10.66663
+exp(price.last2)
 
 # How did you think the predictions fared to the actual true selling price?
 ##  Now we are going to perform a similar analysis, except that we are changing the mean model.
