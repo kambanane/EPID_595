@@ -8,7 +8,7 @@
 # knitr::opts_chunk$set(fig.width=8, fig.height=8) 
 # Installing the necessary packages
 
-install.packages(c("maps","maptools","spdep","RColorBrewer","classInt"),repos="https://cloud.r-project.org")
+#install.packages(c("maps","maptools","spdep","RColorBrewer","classInt"),repos="https://cloud.r-project.org")
 
 library(maps)
 library(maptools)
@@ -17,7 +17,7 @@ library(RColorBrewer)
 library(classInt)
 
 # Reading in the SAT dataset.
-sat.data <- read.table("state-sat.csv",sep=",",header=T)
+sat.data <- read.table("Data/state-sat.csv",sep=",",header=T)
 
 # To look at the names of the variables in the SAT dataset, we can simply do the following:
 names(sat.data)
@@ -26,8 +26,9 @@ names(sat.data)
 # Here we are taking the individual columns in the SAT dataset, and create variables within the R environment
 sat.state <- sat.data$state
 sat.math <- sat.data$math
-sat.continental <- sat.math[-c(which(as.character(sat.state)=="alaska"),which(as.character(sat.state)=="hawaii"))]
-
+sat.continental <-
+  sat.math[-c(which(as.character(sat.state) == "alaska"),
+              which(as.character(sat.state) == "hawaii"))]
 
 # The following command takes the shapefile for the states within the United States and creates a spatial polygon.
 # Here we load the shapefile with the states in the US.

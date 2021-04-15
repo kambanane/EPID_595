@@ -12,7 +12,7 @@
 
 
 # Installing the necessary packages
-install.packages(c("maps","maptools","spdep","RColorBrewer","classInt"),repos="https://cloud.r-project.org")
+#install.packages(c("maps","maptools","spdep","RColorBrewer","classInt"),repos="https://cloud.r-project.org")
 
 library(maps)
 library(maptools)
@@ -20,10 +20,9 @@ library(spdep)
 library(RColorBrewer)
 library(classInt)
 
-
-
 # Reading in the SAT dataset
-sat.data <- read.table("state-sat.csv",sep=",",header=T)
+sat.data <- read.table("Data/state-sat.csv",sep=",",header=T)
+
 # To look at the names of the variables in the SAT dataset, we can simply do the following:
 names(sat.data)
 ## [1] "state"  "verbal" "math"   "pct"
@@ -31,20 +30,26 @@ names(sat.data)
 sat.state <- sat.data$state
 sat.math <- sat.data$math
 
-
 # The following command takes the shapefile for the states within the United States and creates a spatial polygon.
 # Here we load the shapefile with the states in the US.
-us.states <-map("state",fill=T,plot=F)
+us.states <- map("state", fill = T, plot = F)
 # This creates an ID for each US state
-us.IDs <- sapply(strsplit(us.states$names,":"),function(x) x[1])
+us.IDs <- sapply(strsplit(us.states$names, ":"), function(x)
+  x[1])
 # This creates a spatial polygon from a map object.
-us.poly <- map2SpatialPolygons(us.states,IDs=us.IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
+us.poly <-
+  map2SpatialPolygons(us.states,
+                      IDs = us.IDs,
+                      proj4string = CRS("+proj=longlat +datum=WGS84"))
 
-# Creating a chloropleth map of the Average SAT Math score for all the 
+# Creating a chloropleth map of the Average SAT Math score for all the
 # United states except Alaska and Hawaii.
 # Here we define the variable that we want to create a plot for:
-sat.continental <- sat.math[-c(which(as.character(sat.state)=="alaska"),which(as.character(sat.state)=="hawaii"))]
+sat.continental <-
+  sat.math[-c(which(as.character(sat.state) == "alaska"),
+              which(as.character(sat.state) == "hawaii"))]
 plotvar <- sat.continental
+
 # Here we define how many colors we want to use for the map.
 nclr <- 5
 # This command defines the 5 different colors to use for the map within 
@@ -73,8 +78,15 @@ leg.txt<-c("[475; 500)","[500; 525)","[525; 550)","[550; 575)","[575; 605]")
 legend(-122,27,legend=leg.txt,fill=plotclr,cex=1,ncol=1,bty="n")
 
 # Here we look at the distribution of the Average SAT Math score.
-hist(sat.continental,breaks=20,col="coral",xlab="Average SAT Math score",freq=F,main="Histogram of Avg SAT Math score")
-lines(density(sat.continental),lwd=2,col="black")
+hist(
+  sat.continental,
+  breaks = 20,
+  col = "coral",
+  xlab = "Average SAT Math score",
+  freq = F,
+  main = "Histogram of Avg SAT Math score"
+)
+lines(density(sat.continental), lwd = 2, col = "black")
 
 # Here we calculate Moran's I. The function that derives Moran's I is the function
 # moran.test in the spdep package.
