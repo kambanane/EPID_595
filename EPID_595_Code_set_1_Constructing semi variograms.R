@@ -135,12 +135,14 @@ points(lon.pm25, lat.pm25, col = col.pm25, pch = 19)
 # all the needed information used when running the function variogram.
 pm25.df <-
   data.frame(cbind(x.coord, y.coord, pm25, temperature, ppt, pop.dens, elev))
+
 emp.variog.pm25 <-
   variogram(
     pm25 ~ temperature + ppt + pop.dens + elev,
     locations =  ~ x.coord + y.coord,
     data = pm25.df
   )
+
 # The function variogram reports, the number of pairs that fall within each bin (np), the value of the semi-variance for each bin (gamma), and each bin's representative, or the bins' distance midpoints (dist).
 emp.variog.pm25
 ##     np      dist    gamma dir.hor dir.ver   id
@@ -159,5 +161,9 @@ emp.variog.pm25
 ## 13 257 355195.50 5.385841       0       0 var1
 ## 14 219 382693.72 7.209512       0       0 var1
 ## 15 227 412235.45 4.390867       0       0 var1
+
 # To plot an empirical semi-variogram, we simply use the command plot on the output of the function variogram.
 plot(emp.variog.pm25)
+
+
+
