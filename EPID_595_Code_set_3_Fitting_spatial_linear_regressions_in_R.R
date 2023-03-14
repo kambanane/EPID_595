@@ -238,7 +238,7 @@ names(pm25.reml)
 ## [23] "trend.matrix"               "transform.info"
 ## [25] "nospatial"                  "model.components"
 ## [27] "call"
-# For example, one could also obtain the AIC value corresponding to a spatial linear regresison model.
+# For example, one could also obtain the AIC value corresponding to a spatial linear regression model.
 pm25.reml$AIC
 ## [1] 482.9675
 # We could also create 95% confidence interval for the regression coefficients.

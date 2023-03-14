@@ -39,6 +39,7 @@ elev <- pm25.data$Elevation
 pm25.df <- data.frame(cbind(x.coord,y.coord,pm25,temperature,ppt,pop.dens,elev))
 emp.variog.pm25 <- variogram(pm25~temperature+ppt+pop.dens+elev,locations=~x.coord+y.coord,data=pm25.df)
 emp.variog.pm25
+plot(emp.variog.pm25)
 ##     np      dist    gamma dir.hor dir.ver   id
 ## 1  114  17829.22 2.170668       0       0 var1
 ## 2  177  42708.42 3.752572       0       0 var1
@@ -62,12 +63,19 @@ emp.variog.pm25
 # Note that since Easting and Northing are given in terms of meters (and not kms), if we want to use as initial value for the range parameter, phi, 300 km, we have to specify as initial value for phi 300,000 meters. We call this Option 1.
 # Alternatively (Option 2), we can divide the Easting and Northing coordinates by 1000, thus obtaining the Easting and Northing coordinates in km, recalculate the empirical semi-variogram using Easting and Northing in kms rather than in meters and then fit a semi-variogram model to the empirical semi-variogram providing the initial value for phi on the km scale.
 
-# Fitting a semi-variogram using Option 1: We specify as initial values for sigma^2, tau^2 and phi the following values (as discussed in Unit 1): 6 for the partial sill (psill), 2 for the nugget effect (nugget) and 300km or 300,000km for the range parameter (range). We choose an exponential semi-variogram model. We provide all these choices in the option vgm within the fit.variogram function, specifying in order, first, the value of the partial sill, then the semi-variogram model chosen (either "Exp" for exponential or "Gau" for Gaussian), the range parameter on a km scale, and finally the nugget effect.
+# Fitting a semi-variogram using Option 1: We specify as initial values for sigma^2, tau^2 and phi 
+# the following values (as discussed in Unit 1): 6 for the partial sill (psill), 
+# 2 for the nugget effect (nugget) and 300km or 300,000km for the range parameter (range). 
+# We choose an exponential semi-variogram model. We provide all these choices in the option vgm 
+# within the fit.variogram function, specifying in order, first, the value of the partial sill, 
+# then the semi-variogram model chosen (either "Exp" for exponential or "Gau" for Gaussian), 
+# the range parameter on a km scale, and finally the nugget effect.
 variog.pm25 <- fit.variogram(emp.variog.pm25,vgm(psill=4.0,"Exp",300000,2.0))
 variog.pm25
 ##   model    psill    range
 ## 1   Nug 1.048898     0.00
 ## 2   Exp 4.944573 66257.04
+
 # The estimates of the semi-variogram parameters are reported in a 2x2 matrix, where the top left number provides the estimated nugget effect, the bottom left number reports the estimated partial sill, while the bottom right number is the estimated range parameter in meters.
 # To plot the fitted semi-variogram on top of the empirical semi-variogram, we use the function variogramLine.
 # The function variogramLine reports the value of a semi-variogram model at a given distance when the semi-variogram parameters are equal to provided values.
