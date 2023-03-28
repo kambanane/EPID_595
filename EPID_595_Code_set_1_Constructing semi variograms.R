@@ -56,7 +56,7 @@ hist(
 # Here we are estimating the density
 dens.pm25 <- density(pm25)
 
-4# This displays the density for PM2.5 concentration as an overlaid line on the histogram
+# This displays the density for PM2.5 concentration as an overlaid line on the histogram
 lines(dens.pm25,
       col = "black",
       lwd = 2,

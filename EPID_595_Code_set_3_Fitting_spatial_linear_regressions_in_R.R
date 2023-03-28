@@ -90,7 +90,8 @@ emp.variog.pm25
 plot(emp.variog.pm25)
 
 ### LAB QUESTION 2 ####
-# Here we fit a semi-variogram model to an empirical semi-variogram via the method of Weighted Least Squares, we use the function fit.variogram.
+# Here we fit a semi-variogram model to an empirical semi-variogram via the method of Weighted Least Squares,
+# we use the function fit.variogram.
 # We specify as initial values for sigma^2, tau^2 and phi the following values (as discussed in Unit 1): 6 for the partial sill (psill), 2 for the nugget effect (nugget) and 300km for the range parameter (range). We choose an exponential semi-variogram model.
 variog.pm25 <-
   fit.variogram(emp.variog.pm25, vgm(psill = 4.0, "Exp", 300, 2.0))
@@ -249,10 +250,18 @@ squared.se.beta <- diag(pm25.reml$beta.var)
 # Example: 95% CI for the regression coefficients:
 ci.beta <-
   cbind(
+    pm25.reml$beta,
     pm25.reml$beta - 1.96 * sqrt(squared.se.beta),
     pm25.reml$beta + 1.96 * sqrt(squared.se.beta)
   )
+row.names(ci.beta) <- c("intercept", "temperature", "ppt", "pop.dens", "elev")
+## results from our spatial model 
 ci.beta
+
+## non spatial model
+summary(lm(pm25 ~ temperature + ppt + pop.dens + elev, data = pm25.df))
+
+
 ##                    [,1]         [,2]
 ## intercept -8.358363e+00 2.125825e+01
 ## covar1    -3.287034e-01 2.512392e-01

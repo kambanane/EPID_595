@@ -36,7 +36,8 @@ lat.pm25 <- pm25.data$Latitude
 pop.dens <- pm25.data$Density_pop
 elev <- pm25.data$Elevation
 
-# This is the fictitious dataset with the residential addresses of the babies for which we have birthweight data information. Additionally, the dataset provides the values of the explanatory variables (daily average temperature, daily avg rainfall amount, population density and elevation) at the birthweight locations.
+# This is the fictitious dataset with the residential addresses of the babies for which we have birthweight data information. 
+## Additionally, the dataset provides the values of the explanatory variables (daily average temperature, daily avg rainfall amount, population density and elevation) at the birthweight locations.
 bw.data <- read.csv("Data/Birthwt_locs_Cali.csv",
                     sep = ",",
                     header = T)
