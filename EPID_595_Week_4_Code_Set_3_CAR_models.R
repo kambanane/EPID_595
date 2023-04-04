@@ -7,15 +7,17 @@
 # knitr::opts_chunk$set(fig.width=12, fig.height=8) 
 # Installing the necessary packages
 
-install.packages(c(
-  "maps",
-  "maptools",
-  "spdep",
-  "RColorBrewer",
-  "classInt",
-  "CARBayes"
-),
-repos = "https://cloud.r-project.org")
+sf::sf_use_s2(FALSE)
+# 
+# install.packages(c(
+#   "maps",
+#   "maptools",
+#   "spdep",
+#   "RColorBrewer",
+#   "classInt",
+#   "CARBayes"
+# ),
+# repos = "https://cloud.r-project.org")
 ## 
 ## The downloaded binary packages are in
 ##  /var/folders/9n/gn30q9z56gv9qbdhfqjyfqn80000gn/T//RtmpeDTZeO/downloaded_packages
