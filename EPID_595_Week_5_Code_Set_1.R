@@ -32,6 +32,8 @@ library(classInt)
 library(SpatialEpi)
 
 
+########################### PART 1 ############################################
+
 # Reading in the data.
 data(scotland)
 # Looking at the names of the variables in the dataset.
@@ -213,6 +215,7 @@ class
 ##                   10                   11
 colcode <- findColours(class, plotclr)
 
+### Make of plot of the SMRs
 plot(
   scotland.noisland.spatial.polygon,
   border = "black",
@@ -273,6 +276,10 @@ legend(
   ncol = 1,
   bty = "n"
 )
+
+
+############################### POISSON-GAMMA MODEL ################################################
+
 
 # Here we show how to fit a Poisson-Gamma model, where the observed data in an areal unit
 # are modeled to follow a Poisson distribution with mean equal to the product of the expected
