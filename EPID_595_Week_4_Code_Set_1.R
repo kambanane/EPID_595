@@ -21,7 +21,7 @@ library(RColorBrewer)
 library(classInt)
 
 # Reading in the SAT dataset
-sat.data <- read.table("Data/state-sat.csv",sep=",",header=T)
+sat.data <- read.table("Data/state-sat.csv", sep = ",", header = T)
 
 # To look at the names of the variables in the SAT dataset, we can simply do the following:
 names(sat.data)
@@ -42,7 +42,7 @@ us.poly <-
                       IDs = us.IDs,
                       proj4string = CRS("+proj=longlat +datum=WGS84"))
 
-# Creating a chloropleth map of the Average SAT Math score for all the
+# Creating a choropleth map of the Average SAT Math score for all the
 # United states except Alaska and Hawaii.
 # Here we define the variable that we want to create a plot for:
 sat.continental <-

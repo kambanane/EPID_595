@@ -33,6 +33,7 @@ library(CARBayes)
 mich.data <- read.table("Data/mich_crime_lead.csv",
                         sep = ",",
                         header = T)
+
 # To look at the names of the variables in the Michigan crime and lead dataset, we can simply do the following:
 names(mich.data)
 ##  [1] "county"                 "ebll"                   "crime_rate"            
@@ -69,7 +70,7 @@ l.yrev <- log(y.rev)
 # is more closely Gaussian.
 hist(l.yrev,breaks=40,xlab="Average log violent crime arrest rate per 100,000 people",col="orchid3",main="Histogram of log avg. violent crime arrest rate")
 
-# This part of the code create chloropleth maps of the response variables and of the explanatory variables
+# This part of the code create choropleth maps of the response variables and of the explanatory variables
 mich.county <- map("county", "michigan", fill = T, plot = F)
 mich.IDs <- sapply(strsplit(mich.county$names, ":"), function(x)
   x[1])
