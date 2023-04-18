@@ -280,7 +280,6 @@ legend(
 
 ############################### POISSON-GAMMA MODEL ################################################
 
-
 # Here we show how to fit a Poisson-Gamma model, where the observed data in an areal unit
 # are modeled to follow a Poisson distribution with mean equal to the product of the expected
 # number of cases in the areal unti and the relative risk of the disease in the areal unit.
