@@ -17,8 +17,6 @@
 #
 #
 
-
-
 if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 
 library(rspatial)
