@@ -232,10 +232,10 @@ plot(spp[1:4], main='')
 ### Get the intensity of crimes 
 library(spatstat)
 intensity(p)
-intensity(spp)
+(round(intensity(spp)*100000,3))
 
 ### Make a map of the densities of each type of crime. 
-plot(density(spp[1:4]), main='')
+plot(density(spp[1:15]), main='')
 
 
 
