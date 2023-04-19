@@ -231,5 +231,14 @@ spp <- split(mpp)
 plot(spp[1:4], main='')
 
 
+### Get the intensity of crimes 
+library(spatstat)
+intensity(p)
+intensity(spp)
+
 ### Make a map of the densities of each type of crime. 
 plot(density(spp[1:4]), main='')
+
+
+
+

@@ -39,7 +39,7 @@ tm_shape(main_network_mtl) +
 ## As one can see, the theatres seems to be more clustered than the libraries.
 
 kfun_theatre <- kfunctions(main_network_mtl, mtl_theatres,
-                           start = 0, end = 5000, step = 50, 
+                           start = 0, end = 2000, step = 50, 
                            width = 1000, nsim = 50, resolution = 50,
                            verbose = FALSE, conf_int = 0.05)
 kfun_theatre$plotk
@@ -57,7 +57,7 @@ kfun_theatre$plotg
 ## We can perform the same analysis for libraries.
 
 kfun_biblio <- kfunctions(main_network_mtl, mtl_libraries,
-                          start = 0, end = 5000, step = 50,
+                          start = 0, end = 2000, step = 50,
                           width = 1000, nsim = 50, verbose = FALSE)
 
 kfun_biblio$plotk
@@ -77,7 +77,7 @@ kfun_biblio$plotg
 ## of points are randomized to estimate if the current situation is more or less clustered that what we could expect at random.
 
 cross_biblio_theatre <- cross_kfunctions(main_network_mtl, mtl_libraries,
-                                         mtl_theatres, start = 0, end = 5000, step = 50,
+                                         mtl_theatres, start = 0, end = 2000, step = 50,
                                          width = 1000, nsim = 50, verbose = FALSE)
 
 cross_biblio_theatre$plotk
@@ -86,7 +86,7 @@ cross_biblio_theatre$plotk
 ## located around the theatres and display nor clustering nor dispersion around theatres.
 
 cross_theatre_biblio <- cross_kfunctions(main_network_mtl, mtl_theatres,
-                                         mtl_libraries, start = 0, end = 5000,
+                                         mtl_libraries, start = 0, end = 2000,
                                          step = 50, width = 1000, nsim = 50, verbose = FALSE)
 
 cross_theatre_biblio$plotk

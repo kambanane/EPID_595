@@ -20,7 +20,7 @@
 ### Load in some libraries, if you don't have them, please install them.
 
 library(tidyverse)
-library(GISTools)
+#library(GISTools)
 library(sp)
 library(rgeos)
 library(tmap)
@@ -41,6 +41,7 @@ load("Data/newhaven.RData")
 # look at it
 # select 'view' mode
 tmap_mode('view')
+
 # Create the map of blocks and incidents
 tm_shape(blocks) + tm_borders() +
   tm_shape(breach) +
@@ -57,11 +58,11 @@ choose_bw <- function(spdf) {
   
 }
 
-library(tmaptools)
-tmap_mode('view')
-breach_dens <-
-  oldtmaptools::smooth_map(breach, cover = blocks, bandwidth = choose_bw(breach))
-
+# library(tmaptools)
+# tmap_mode('view')
+# breach_dens <-
+#   oldtmaptools::smooth_map(breach, cover = blocks, bandwidth = choose_bw(breach))
+# 
 
 # runs the kernel density estimation,look up the function parameters for more options
 kde.output <- kernelUD(breach, h = "href", grid = 1000)
@@ -151,14 +152,5 @@ tm_shape(blocks) + tm_borders(col='grey') +
 
 #### Using the K-function in R
 
-# K-function code block
-# Load the spatstat package
-require(spatstat)
-# Obtain the bramble cane data
-data(bramblecanes)
-plot(bramblecanes)
 
-kf <- Kest(bramblecanes,correction='border')
-# Plot it
-plot(kf)
 
