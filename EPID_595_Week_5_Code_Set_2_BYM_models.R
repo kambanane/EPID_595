@@ -3,7 +3,7 @@
 
 # This code shows how to fit a disease mapping model that involves a Poisson likelihood and
 # includes explanatory variables as well as spatial random effects in the model for the log relative risks.
-# The code also shows how to fit a Besag-York-Mollie’ or BYM diseae mapping model which includes
+# The code also shows how to fit a Besag-York-Mollie’ or BYM disease mapping model which includes
 # both spatial and non-spatial random effects in the model for the log relative risks.
 
 # For the analysis, we will need the R packages: maps, maptools, spdep, RColorBrewer, classInt,
@@ -52,39 +52,45 @@ library(CARBayes)
 library(SpatialEpi)
 
 
-# Reading in the data.
-data(scotland)
-# Looking at the names of the variables in the dataset.
-names(scotland)
-## [1] "geo"             "data"            "spatial.polygon" "polygon"
-# The lip cancer data is stored in the object scotland$data.
-scotland.data <- scotland$data
-# Here we give R names to different variables in the lip cancer dataset.
-Y <- scotland.data$cases
-E <- scotland.data$expected
-# The covariate is the proportion of the population that is involved in agriculture, fisheries
-# and forestries.
-X <- scotland.data$AFF
+#### Reading in the data. ####
 
-N <- length(Y)
+scotland.spatial.polygon<- st_read("Data/Lip_cancer/scotlip/scotlip.shp")
 
-# The geographical information for lip cancer data is contained in the object called
-# polygon. This object contains a list "polygon" that includes all the points
-# that are needed to draw the boundaries of each county. The vector "nrepeats"
-# lists for each county, how many subpolygons are needed to draw the boundary of the county.
 
-scotland.polygon <- scotland$polygon$polygon
-scotland.nrepeats <- scotland$polygon$nrepeats
-scotland.names <- scotland$data$county.names
-# The command polygon2spatial_polygons transforms the "spatial_polygon" object that is
-# a data structure defined within the package SpatialEpi into a polygon object on
-# which we can then run functions to obtain the list of adjacency, the number of neighbors
-# of each county and so forth.
-scotland.spatial.polygon <-
-  polygon2spatial_polygon(scotland.polygon,
-                          coordinate.system = "+proj=utm",
-                          scotland.names,
-                          scotland.nrepeats)
+# 
+# 
+# data(scotland)
+# # Looking at the names of the variables in the dataset.
+# names(scotland)
+# ## [1] "geo"             "data"            "spatial.polygon" "polygon"
+# # The lip cancer data is stored in the object scotland$data.
+# scotland.data <- scotland$data
+# # Here we give R names to different variables in the lip cancer dataset.
+# Y <- scotland.data$cases
+# E <- scotland.data$expected
+# # The covariate is the proportion of the population that is involved in agriculture, fisheries
+# # and forestries.
+# X <- scotland.data$AFF
+# 
+# N <- length(Y)
+# 
+# # The geographical information for lip cancer data is contained in the object called
+# # polygon. This object contains a list "polygon" that includes all the points
+# # that are needed to draw the boundaries of each county. The vector "nrepeats"
+# # lists for each county, how many subpolygons are needed to draw the boundary of the county.
+# 
+# scotland.polygon <- scotland$polygon$polygon
+# scotland.nrepeats <- scotland$polygon$nrepeats
+# scotland.names <- scotland$data$county.names
+# # The command polygon2spatial_polygons transforms the "spatial_polygon" object that is
+# # a data structure defined within the package SpatialEpi into a polygon object on
+# # which we can then run functions to obtain the list of adjacency, the number of neighbors
+# # of each county and so forth.
+# scotland.spatial.polygon <-
+#   polygon2spatial_polygon(scotland.polygon,
+#                           coordinate.system = "+proj=utm",
+#                           scotland.names,
+#                           scotland.nrepeats)
 
 # The function poly2nb derives the list of neighbors of each areal unit. This list of neighbors
 # is contained into an object of type nb.
@@ -103,15 +109,18 @@ index.islands <- which(num == 0)
 index.islands
 ## [1]  6  8 11
 # There are 3 islands that don't have neighbors. We remove them from the dataset.
-Y.noisland <- Y[-index.islands]
-E.noisland <- E[-index.islands]
-X.noisland <- X[-index.islands]
+#Y.noisland <- Y[-index.islands]
+Y.noisland <- scotland.spatial.polygon$CANCER[-index.islands]
+E.noisland <- scotland.spatial.polygon$CEXP[-index.islands]
+X.noisland <- scotland.spatial.polygon$AFF[-index.islands]
+# E.noisland <- E[-index.islands]
+# X.noisland <- X[-index.islands]
 N.noisland <- length(Y.noisland)
 
 # We also remove these 3 counties from the spatial polygon. We need this new polygon
 # for plotting purposes, among others.
 scotland.noisland.spatial.polygon <-
-  scotland.spatial.polygon[seq(1:N)[-index.islands]]
+  scotland.spatial.polygon[-index.islands,]
 # We create the nb object with the information on which areal unit is neighbor of which other
 # areal unit, the number of neighbors to each areal unit and a vector with the binary adjacency
 # weights.
@@ -126,125 +135,21 @@ N.noisland <- length(num.noisland)
 # Making maps of the observed number, the expected number of lip cancer cases in Scotland, and
 # the explanatory variable (AFF).
 
-# Observed number of cases:
-plotvar <- Y.noisland
-nclr <- 5
 
-plotclr <- brewer.pal(nclr, "Purples")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 4,845 possible partitions of this variable into 5 classes
-##   [0,3)   [3,7)   [7,9)  [9,15) [15,39]
-##       9      11       9      12      12
-colcode <- findColours(class, plotclr)
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
-)
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Observed number of cases of \n lip cancer in Scotland")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
-
-leg.txt <- c("0-2", "3-6", "7-8", "9-14", "15-39")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CANCER", style = "quantile") +
+    tm_layout(main.title = "Cancer cases")
+  ,
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CEXP", style = "quantile") +
+    tm_layout(main.title = "Expected number of cases")
+  ,
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("AFF", style = "quantile") +
+    tm_layout(main.title = "Agriculture, Forest and Fisheries (percent)")
 )
 
-# Expected number of cases:
-plotvar <- E.noisland
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "OrRd")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 163,185 possible partitions of this variable into 5 classes
-##   [1.1,3.48)  [3.48,5.58)  [5.58,8.26) [8.26,12.42) [12.42,88.7]
-##           11           10           11           10           11
-colcode <- findColours(class, plotclr)
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
-)
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Expected number of cases of \n lip cancer in Scotland")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
-
-leg.txt <-
-  c("[1.0; 3.48)",
-    "[3.48; 5.58)",
-    "[5.58; 8.26)",
-    "[8.26; 12.42)",
-    "[12.42; 88.7]")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
-
-### Proportion of population involved in agriculture, forestry and fishery
-plotvar <- X.noisland
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "YlGn")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 5 possible partitions of this variable into 5 classes
-##    [0,0.01) [0.01,0.07)  [0.07,0.1)  [0.1,0.16) [0.16,0.24]
-##           5          11          12          12          13
-colcode <- findColours(class, plotclr)
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
-)
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Percent population working in \n Agriculture, Fishery and Forestry")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
-
-leg.txt <- c("[0; 1%)", "[1%; 7%)", "[7%; 10%)", "[10%; 16%)",
-             "[16%; 24%)")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
 
 # Here we fit the disease mapping model where the observed number of cases in an areal unit
 # are modeled as following a Poisson distribution with mean equal to the expected number of
@@ -318,60 +223,16 @@ model.scotland$summary.results
 spatial.raneff <- model.scotland$samples$phi
 # The matrix with the samples of the spatial random effects has as many rows as the number of MCMC
 # iterations post burn-in and as many columns as the number of areal units.
-post.median.phi <- apply(spatial.raneff, 2, median)
+scotland.noisland.spatial.polygon$spatial_raneff <- apply(spatial.raneff, 2, median)
 
-# Here we create a map of the estimated spatial random effects.
-plotvar <- post.median.phi
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "RdBu")[5:1]
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 270,725 possible partitions of this variable into 5 classes
-##  [-0.7028877,-0.493814)  [-0.493814,-0.2965505) [-0.2965505,0.01946093)
-##                      11                      10                      11
-##  [0.01946093,0.6235956)    [0.6235956,1.128607]
-##                      10                      11
-colcode <- findColours(class, plotclr)
-
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+#Here we create a map of the estimated spatial random effects.
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("spatial_raneff", style = "quantile") +
+    tm_layout(main.title = "Spatial random effects")
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Estimated spatial random effects")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
 
-leg.txt <-
-  c(
-    paste("[", round(class$brks[1], 3), "; ", round(class$brks[2], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[2], 3), "; ", round(class$brks[3], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[3], 3), "; ", round(class$brks[4], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[4], 3), "; ", round(class$brks[5], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[5], 3), "; ", round(class$brks[6], 3), ")", sep =
-            "")
-  )
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+
 
 # Here we make a map of the estimated relative risks. To calculate the relative risks, we need
 # to take samples of the spatial random effects, and add to them samples of the regression
@@ -384,59 +245,15 @@ legend(
 samples.covariate <-
   model.scotland$samples$beta %*% t(matrix(cbind(rep(1, N.noisland), X.noisland2), N.noisland, 2))
 samples.RR <- exp(samples.covariate + spatial.raneff)
+scotland.noisland.spatial.polygon$RR<- apply(samples.RR, 2, median)
 
-post.median.RR <- apply(samples.RR, 2, median)
-plotvar <- post.median.RR
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "YlOrRd")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 270,725 possible partitions of this variable into 5 classes
-## [0.3598423,0.5035009) [0.5035009,0.8253508)  [0.8253508,1.172252)
-##                    11                    10                    11
-##   [1.172252,1.964647)   [1.964647,4.479187]
-##                    10                    11
-colcode <- findColours(class, plotclr)
-
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+#Here we create a map of the estimated spatial random effects.
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("RR", style = "quantile") +
+    tm_layout(main.title = "Estimated relative risks")
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Estimated relative risks \n Disease mapping & CAR model")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
 
-leg.txt <-
-  c(
-    paste("[", round(class$brks[1], 3), "; ", round(class$brks[2], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[2], 3), "; ", round(class$brks[3], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[3], 3), "; ", round(class$brks[4], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[4], 3), "; ", round(class$brks[5], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[5], 3), "; ", round(class$brks[6], 3), ")", sep =
-            "")
-  )
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
 
 # Here we see how to fit a BYM model to the data. The function that we will use for this task is
 # the function S.CARbym in the CARBayes package.
@@ -493,56 +310,25 @@ samples.covariate.bym <-
   model.scotland.bym$samples$beta %*% t(matrix(cbind(rep(1, N.noisland), X.noisland2), N.noisland, 2))
 raneff.bym <- model.scotland.bym$samples$psi
 samples.RR.bym <- exp(samples.covariate.bym + raneff.bym)
+scotland.noisland.spatial.polygon$RR.bym <- apply(samples.RR.bym, 2, median)
 
-post.median.RR.bym <- apply(samples.RR.bym, 2, median)
-plotvar <- post.median.RR.bym
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "YlOrRd")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 270,725 possible partitions of this variable into 5 classes
-## [0.3583432,0.5117057) [0.5117057,0.8283022)  [0.8283022,1.157379)
-##                    11                    10                    11
-##   [1.157379,1.945562)   [1.945562,4.373489]
-##                    10                    11
-colcode <- findColours(class, plotclr)
-
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+## Now let's look at the BYM derived relative risks alongside our other maps.
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CANCER", style = "quantile") +
+    tm_layout(main.title = "Cancer cases")
+  ,
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CEXP", style = "quantile") +
+    tm_layout(main.title = "Expected number of cases")
+  ,
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("AFF", style = "quantile") +
+    tm_layout(main.title = "Agriculture, Forest and Fisheries (percent)"),
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("RR.bym", style = "quantile") +
+    tm_layout(main.title = "BYM derived relative risks"),
+  ncol = 2
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Estimated relative risks \n BYM model")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
 
-leg.txt <-
-  c(
-    paste("[", round(class$brks[1], 3), "; ", round(class$brks[2], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[2], 3), "; ", round(class$brks[3], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[3], 3), "; ", round(class$brks[4], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[4], 3), "; ", round(class$brks[5], 3), ")", sep =
-            ""),
-    paste("[", round(class$brks[5], 3), "; ", round(class$brks[6], 3), ")", sep =
-            "")
-  )
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+

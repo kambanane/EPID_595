@@ -30,9 +30,14 @@ library(spdep)
 library(RColorBrewer)
 library(classInt)
 library(SpatialEpi)
+library(CARBayesdata)
+library(tmap)
 
 
 ########################### PART 1 ############################################
+
+# library(shapefiles)
+# data(lipshp)
 
 # Reading in the data.
 data(scotland)
@@ -60,11 +65,17 @@ scotland.names <- scotland$data$county.names
 # a data structure defined within the package SpatialEpi into a polygon object on
 # which we can then run functions to obtain the list of adjacency, the number of neighbors
 # of each county and so forth.
-scotland.spatial.polygon <-
-  polygon2spatial_polygon(scotland.polygon,
-                          coordinate.system = "+proj=utm",
-                          scotland.names,
-                          scotland.nrepeats)
+# sf::st_crs()
+# 
+# scotland.spatial.polygon <-
+#   polygon2spatial_polygon(scotland.polygon,
+#                           coordinate.system = "+proj=utm",
+#                           scotland.names,
+#                           scotland.nrepeats)
+
+scotland.spatial.polygon<- st_read("Data/Lip_cancer/scotlip/scotlip.shp")
+
+
 
 # The function poly2nb derives the list of neighbors of each areal unit. This list of neighbors
 # is contained into an object of type nb.
@@ -85,10 +96,11 @@ index.islands
 # There are 3 islands that don't have neighbors. We remove them from the dataset.
 Y.noisland <- Y[-index.islands]
 E.noisland <- E[-index.islands]
+
 # We also remove these 3 counties from the spatial polygon. We need this new polygon
 # for plotting purposes, among others.
 scotland.noisland.spatial.polygon <-
-  scotland.spatial.polygon[seq(1:N)[-index.islands]]
+  scotland.spatial.polygon[-index.islands,]
 # Here we derive (they will be of use later) the NB object with information on which areal unit
 # is neighbor of which areal unit in the new spatial polygon made of the counties of Scotland
 # from which we have removed the counties with no neighbors.
@@ -103,89 +115,106 @@ weights.noisland <- scotland.noisland.weights$weights
 num.noisland <- scotland.noisland.weights$num
 N.noisland <- length(num.noisland)
 
+# 
+# scotland.noisland.spatial.polygon <- scotland.noisland.spatial.polygon %>%
+#   st_join(scotland) %>%
+#   dplyr::select(CANCER)
 
 # Making maps of the observed number and of the expected number of lip cancer cases in Scotland.
-
-# Observed number of cases:
-plotvar <- Y.noisland
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "Purples")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 4,845 possible partitions of this variable into 5 classes
-##   [0,3)   [3,7)   [7,9)  [9,15) [15,39]
-##       9      11       9      12      12
-colcode <- findColours(class, plotclr)
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
-)
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Observed number of cases of \n lip cancer in Scotland")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
-
-leg.txt <- c("0-2", "3-6", "7-8", "9-14", "15-39")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CANCER", style = "quantile") +
+    tm_layout(main.title = "Cancer cases")
+  ,
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("CEXP", style = "quantile") +
+    tm_layout(main.title = "Expected number of cases")
 )
 
-# Expected number of cases:
-plotvar <- E.noisland
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "OrRd")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 163,185 possible partitions of this variable into 5 classes
-##   [1.1,3.48)  [3.48,5.58)  [5.58,8.26) [8.26,12.42) [12.42,88.7]
-##           11           10           11           10           11
-colcode <- findColours(class, plotclr)
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
-)
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Expected number of cases of \n lip cancer in Scotland")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
-
-leg.txt <-
-  c("[1.0; 3.48)",
-    "[3.48; 5.58)",
-    "[5.58; 8.26)",
-    "[8.26; 12.42)",
-    "[12.42; 88.7]")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+# 
+# 
+# # Observed number of cases:
+# plotvar <- Y.noisland
+# nclr <- 5
+# 
+# plotclr <- brewer.pal(nclr, "Purples")
+# class <-
+#   classIntervals(plotvar,
+#                  nclr,
+#                  style = "fixed",
+#                  fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
+# class
+# ## style: fixed
+# ##   one of 4,845 possible partitions of this variable into 5 classes
+# ##   [0,3)   [3,7)   [7,9)  [9,15) [15,39]
+# ##       9      11       9      12      12
+# colcode <- findColours(class, plotclr)
+# plot(
+#   scotland.noisland.spatial.polygon,
+#   border = "black",
+#   axes = TRUE#,
+#   #xlim = c(-150, 550)
+# )
+# title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Observed number of cases of \n lip cancer in Scotland")
+# plot(scotland.noisland.spatial.polygon,
+#      col = colcode,
+#      add = T)
+# 
+# leg.txt <- c("0-2", "3-6", "7-8", "9-14", "15-39")
+# legend(
+#   -150,
+#   1000,
+#   legend = leg.txt,
+#   fill = plotclr,
+#   cex = 1,
+#   ncol = 1,
+#   bty = "n"
+# )
+# 
+# 
+# # scotland.noisland.spatial.polygon$E.noisland <- Y
+# # Expected number of cases:
+# plotvar <- E.noisland
+# nclr <- 5
+# 
+# plotclr <- brewer.pal(nclr, "OrRd")
+# class <-
+#   classIntervals(plotvar,
+#                  nclr,
+#                  style = "fixed",
+#                  fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
+# class
+# ## style: fixed
+# ##   one of 163,185 possible partitions of this variable into 5 classes
+# ##   [1.1,3.48)  [3.48,5.58)  [5.58,8.26) [8.26,12.42) [12.42,88.7]
+# ##           11           10           11           10           11
+# colcode <- findColours(class, plotclr)
+# plot(
+#   scotland.noisland.spatial.polygon,
+#   border = "black",
+#   axes = TRUE,
+#   xlim = c(-150, 550)
+# )
+# title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Expected number of cases of \n lip cancer in Scotland")
+# plot(scotland.noisland.spatial.polygon,
+#      col = colcode,
+#      add = T)
+# 
+# leg.txt <-
+#   c("[1.0; 3.48)",
+#     "[3.48; 5.58)",
+#     "[5.58; 8.26)",
+#     "[8.26; 12.42)",
+#     "[12.42; 88.7]")
+# legend(
+#   -150,
+#   1000,
+#   legend = leg.txt,
+#   fill = plotclr,
+#   cex = 1,
+#   ncol = 1,
+#   bty = "n"
+# )
 
 # Calculating the standardized mortality ratios (SMRs)
 SMR.noisland <- Y.noisland / E.noisland
@@ -195,52 +224,70 @@ lb.95ci.SMR <-
 ub.95ci.SMR <-
   SMR.noisland + qnorm(0.975, 0, 1) * (sqrt(Y.noisland) / E.noisland)
 
+scotland.noisland.spatial.polygon$SMR <- SMR.noisland
+scotland.noisland.spatial.polygon$lb.95ci.SMR <- lb.95ci.SMR
+scotland.noisland.spatial.polygon$ub.95ci.SMR  <- ub.95ci.SMR 
 
-# Making a plot of the SMRs
-plotvar <- SMR.noisland
-nclr <- 5
-
-plotclr <- brewer.pal(nclr, "Greens")
-class <-
-  classIntervals(plotvar,
-                 nclr,
-                 style = "fixed",
-                 fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
-class
-## style: fixed
-##   one of 211,876 possible partitions of this variable into 5 classes
-##        [0,0.3694136) [0.3694136,0.893665)  [0.893665,1.230645)
-##                   11                   10                   11
-##   [1.230645,2.32634)   [2.32634,6.428571]
-##                   10                   11
-colcode <- findColours(class, plotclr)
-
-### Make of plot of the SMRs
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("SMR", style = "quantile") +
+    tm_layout(main.title = "SMR"),
+  
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("lb.95ci.SMR", style = "quantile") +
+    tm_layout(main.title = "SMR CiL"),
+  
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("ub.95ci.SMR", style = "quantile") +
+    tm_layout(main.title = "SMR CiU")
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Standardized mortality ratio")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
 
-leg.txt <- c("[0; 0.37)",
-             "[0.37; 0.89)",
-             "[0.89; 1.23)",
-             "[1.23; 2.33)",
-             "[2.33; 6.43]")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+# 
+# # Making a plot of the SMRs
+# plotvar <- SMR.noisland
+# nclr <- 5
+# 
+# plotclr <- brewer.pal(nclr, "Greens")
+# class <-
+#   classIntervals(plotvar,
+#                  nclr,
+#                  style = "fixed",
+#                  fixedBreaks = quantile(plotvar, c(0, 0.2, 0.4, 0.6, 0.8, 1.0)))
+# class
+# ## style: fixed
+# ##   one of 211,876 possible partitions of this variable into 5 classes
+# ##        [0,0.3694136) [0.3694136,0.893665)  [0.893665,1.230645)
+# ##                   11                   10                   11
+# ##   [1.230645,2.32634)   [2.32634,6.428571]
+# ##                   10                   11
+# colcode <- findColours(class, plotclr)
+# 
+# ### Make of plot of the SMRs
+# plot(
+#   scotland.noisland.spatial.polygon,
+#   border = "black",
+#   axes = TRUE,
+#   xlim = c(-150, 550)
+# )
+# title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Standardized mortality ratio")
+# plot(scotland.noisland.spatial.polygon,
+#      col = colcode,
+#      add = T)
+# 
+# leg.txt <- c("[0; 0.37)",
+#              "[0.37; 0.89)",
+#              "[0.89; 1.23)",
+#              "[1.23; 2.33)",
+#              "[2.33; 6.43]")
+# legend(
+#   -150,
+#   1000,
+#   legend = leg.txt,
+#   fill = plotclr,
+#   cex = 1,
+#   ncol = 1,
+#   bty = "n"
+# )
 
 # Here we identify which counties in Scotland have SMRs significantly greater than 1 and which
 # counties have SMRs significantly lower than 1. After having identified them, we plot them
@@ -249,40 +296,62 @@ legend(
 SMR.lt1 <- which(ub.95ci.SMR < 1)
 SMR.gt1 <- which(lb.95ci.SMR > 1)
 
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+scotland.noisland.spatial.polygon$SMR.sig_diff_1 <- ifelse(ub.95ci.SMR < 1 | lb.95ci.SMR > 1, 1, 0)
+scotland.noisland.spatial.polygon$SMR.hot<- ifelse( scotland.noisland.spatial.polygon$lb.95ci.SMR > 1, 1, 0)
+scotland.noisland.spatial.polygon$SMR.cold <- ifelse(scotland.noisland.spatial.polygon$ub.95ci.SMR < 1, 1, 0)
+
+tm_shape(scotland.noisland.spatial.polygon) +
+  tm_polygons("SMR.sig_diff_1") +
+  tm_layout(main.title="Significant clusters")
+
+
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("SMR.hot") +
+    tm_layout(main.title = "Hot spots"),
+  
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("SMR.cold") +
+    tm_layout(main.title = "Cold spots")
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Counties with SMR significantly different from 1")
-plot(
-  scotland.noisland.spatial.polygon[SMR.lt1],
-  col = rep("dodgerblue", length(SMR.lt1)),
-  add = T
-)
-plot(
-  scotland.noisland.spatial.polygon[SMR.gt1],
-  col = rep("red1", length(SMR.gt1)),
-  add = T
-)
-leg.txt <- c("SMR significantly > 1", "SMR significantly < 1")
-legend(
-  -150,
-  950,
-  legend = leg.txt,
-  fill = c("red1", "dodgerblue"),
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+
+
+
+# 
+# plot(
+#   scotland.noisland.spatial.polygon,
+#   border = "black",
+#   axes = TRUE,
+#   xlim = c(-150, 550)
+# )
+# title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Counties with SMR significantly different from 1")
+# plot(
+#   scotland.noisland.spatial.polygon[SMR.lt1],
+#   col = rep("dodgerblue", length(SMR.lt1)),
+#   add = T
+# )
+# plot(
+#   scotland.noisland.spatial.polygon[SMR.gt1],
+#   col = rep("red1", length(SMR.gt1)),
+#   add = T
+# )
+# leg.txt <- c("SMR significantly > 1", "SMR significantly < 1")
+# legend(
+#   -150,
+#   950,
+#   legend = leg.txt,
+#   fill = c("red1", "dodgerblue"),
+#   cex = 1,
+#   ncol = 1,
+#   bty = "n"
+# )
 
 
 ############################### POISSON-GAMMA MODEL ################################################
 
 # Here we show how to fit a Poisson-Gamma model, where the observed data in an areal unit
 # are modeled to follow a Poisson distribution with mean equal to the product of the expected
-# number of cases in the areal unti and the relative risk of the disease in the areal unit.
+# number of cases in the areal unit and the relative risk of the disease in the areal unit.
 # The relative risks of the disease are then modeled to each follow a Gamma distribution.
 # The command that fit this model in the package SpatialEpi is the function eBayes.
 # The function eBayes needs as input:
@@ -291,47 +360,64 @@ legend(
 # Since we are not including any covariate in the model, we write "Xmat=NULL".
 Poisson.Gamma.model <- eBayes(Y.noisland, E.noisland, Xmat = NULL)
 
-# The estimated relative risks are contained in the object called RRmed.
-# Here we take them and plot them.
-plotvar <- Poisson.Gamma.model$RRmed
-plotclr <- brewer.pal(nclr, "Greys")
-class <-
-  classIntervals(
-    plotvar,
-    nclr,
-    style = "fixed",
-    fixedBreaks = c(0, 0.37, 0.89, 1.23, 2.33, 4.01)
-  )
-class
-## style: fixed
-##   one of 270,725 possible partitions of this variable into 5 classes
-##    [0,0.37) [0.37,0.89) [0.89,1.23) [1.23,2.33) [2.33,4.01]
-##           5          14          15          12           7
-colcode <- findColours(class, plotclr)
+scotland.noisland.spatial.polygon$RRmed <- Poisson.Gamma.model$RRmed
 
 
-plot(
-  scotland.noisland.spatial.polygon,
-  border = "black",
-  axes = TRUE,
-  xlim = c(-150, 550)
+
+tmap_arrange(
+  tm_shape(scotland.noisland.spatial.polygon) +
+    tm_polygons("SMR", style = "quantile") +
+    tm_layout(main.title = "SMR"),
+
+tm_shape(scotland.noisland.spatial.polygon) +
+  tm_polygons("RRmed", style="quantile") +
+  tm_layout(main.title="Relative risks through Poisson-Gamma model")
 )
-title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Estimated relative risk of lip cancer \n Poisson-Gamma model")
-plot(scotland.noisland.spatial.polygon,
-     col = colcode,
-     add = T)
 
-leg.txt <- c("[0; 0.37)",
-             "[0.37; 0.89)",
-             "[0.89; 1.23)",
-             "[1.23; 2.33)",
-             "[2.33; 4.01]")
-legend(
-  -150,
-  1000,
-  legend = leg.txt,
-  fill = plotclr,
-  cex = 1,
-  ncol = 1,
-  bty = "n"
-)
+
+# 
+# 
+# # The estimated relative risks are contained in the object called RRmed.
+# # Here we take them and plot them.
+# plotvar <- Poisson.Gamma.model$RRmed
+# plotclr <- brewer.pal(nclr, "Greys")
+# class <-
+#   classIntervals(
+#     plotvar,
+#     nclr,
+#     style = "fixed",
+#     fixedBreaks = c(0, 0.37, 0.89, 1.23, 2.33, 4.01)
+#   )
+# class
+# ## style: fixed
+# ##   one of 270,725 possible partitions of this variable into 5 classes
+# ##    [0,0.37) [0.37,0.89) [0.89,1.23) [1.23,2.33) [2.33,4.01]
+# ##           5          14          15          12           7
+# colcode <- findColours(class, plotclr)
+# 
+# 
+# plot(
+#   scotland.noisland.spatial.polygon,
+#   border = "black",
+#   axes = TRUE,
+#   xlim = c(-150, 550)
+# )
+# title(xlab = "Eastings (km)", ylab = "Northings (km)", main = "Estimated relative risk of lip cancer \n Poisson-Gamma model")
+# plot(scotland.noisland.spatial.polygon,
+#      col = colcode,
+#      add = T)
+# 
+# leg.txt <- c("[0; 0.37)",
+#              "[0.37; 0.89)",
+#              "[0.89; 1.23)",
+#              "[1.23; 2.33)",
+#              "[2.33; 4.01]")
+# legend(
+#   -150,
+#   1000,
+#   legend = leg.txt,
+#   fill = plotclr,
+#   cex = 1,
+#   ncol = 1,
+#   bty = "n"
+# )
