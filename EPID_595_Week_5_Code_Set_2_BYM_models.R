@@ -57,40 +57,6 @@ library(SpatialEpi)
 scotland.spatial.polygon<- st_read("Data/Lip_cancer/scotlip/scotlip.shp")
 
 
-# 
-# 
-# data(scotland)
-# # Looking at the names of the variables in the dataset.
-# names(scotland)
-# ## [1] "geo"             "data"            "spatial.polygon" "polygon"
-# # The lip cancer data is stored in the object scotland$data.
-# scotland.data <- scotland$data
-# # Here we give R names to different variables in the lip cancer dataset.
-# Y <- scotland.data$cases
-# E <- scotland.data$expected
-# # The covariate is the proportion of the population that is involved in agriculture, fisheries
-# # and forestries.
-# X <- scotland.data$AFF
-# 
-# N <- length(Y)
-# 
-# # The geographical information for lip cancer data is contained in the object called
-# # polygon. This object contains a list "polygon" that includes all the points
-# # that are needed to draw the boundaries of each county. The vector "nrepeats"
-# # lists for each county, how many subpolygons are needed to draw the boundary of the county.
-# 
-# scotland.polygon <- scotland$polygon$polygon
-# scotland.nrepeats <- scotland$polygon$nrepeats
-# scotland.names <- scotland$data$county.names
-# # The command polygon2spatial_polygons transforms the "spatial_polygon" object that is
-# # a data structure defined within the package SpatialEpi into a polygon object on
-# # which we can then run functions to obtain the list of adjacency, the number of neighbors
-# # of each county and so forth.
-# scotland.spatial.polygon <-
-#   polygon2spatial_polygon(scotland.polygon,
-#                           coordinate.system = "+proj=utm",
-#                           scotland.names,
-#                           scotland.nrepeats)
 
 # The function poly2nb derives the list of neighbors of each areal unit. This list of neighbors
 # is contained into an object of type nb.

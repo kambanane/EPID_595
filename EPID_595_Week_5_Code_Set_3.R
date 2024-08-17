@@ -1,7 +1,7 @@
 # Finding clusters and hotspots in disease incidence data
 # Finding clusters and hotspots in disease incidence data in R
 
-# This code shows how to identify clusters and hoptspots in disease incidence data using disease mapping models.
+# This code shows how to identify clusters and hotspots in disease incidence data using disease mapping models.
 # Specifically, we focus on the two disease mapping models that model the observed number of cases of a disease
 # as following a Poisson distribution with mean equal to the expected number of cases times a log relative risk.
 
