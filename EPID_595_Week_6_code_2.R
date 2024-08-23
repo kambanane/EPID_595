@@ -1,6 +1,6 @@
 # HEADER --------------------------------------------
 #
-# Project Name: EPID 595 Week 6
+# Project Name: EPID 595 Week 6 code set 2
 #
 # Script Name:
 #
@@ -17,20 +17,27 @@
 #
 #
 
+## If you need the rspatial package this installs it.
 if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 
+## Call the library and get the data files. 
 library(rspatial)
 city <- sp_data('city')
 crime <- sp_data('crime')
 
+## Plot the crimes in the city 
 plot(city, col='light blue')
 points(crime, col='red', cex=.5, pch='+')
 
+### Sort the data frame by the category of crime.
 tb <- sort(table(crime$CATEGORY))[-1]
 
+### Get the coordinates of the crimes. 
 xy <- coordinates(crime)
 dim(xy)
 ## [1] 2661    2
+
+## See how many unique pairs there are.
 xy <- unique(xy)
 dim(xy)
 ## [1] 1208    2
@@ -110,7 +117,7 @@ mu <- cases / quadrats
 mu
 ## [1] 9.261484
 
-#### Distance based measures
+#### Distance based measures ####
 
 ## As we are using a planar coordinate system we can use the dist function to compute the distances between pairs of points. 
 ## If we were using longitude/latitude we could compute distance via spherical trigonometry functions. 
@@ -127,11 +134,14 @@ dm[1:5, 1:5]
 ## To get, for each point, the minimum distance to another event, we can use the ‘apply’ function. 
 ## Think of the rows as each point, and the columns of all other points (vice versa could also work).
 
+## Replace all zeroes with NA
+dm[dm == 0] <- NA
 dmin <- apply(dm, 1, min, na.rm=TRUE)
 head(dmin)
 ##         1         2         3         4         5         6
 ## 266.07892 293.58874  47.90260 140.80688  40.06865 510.41231
 
+## Average distance from each crime to the nearest OTHER crime.
 mdmin <- mean(dmin)
 
 ## Do you want to know, for each point, Which point is its nearest neighbour? 
@@ -139,7 +149,7 @@ mdmin <- mean(dmin)
 
 wdmin <- apply(dm, 1, which.min)
 
-### And what are the most isolated cases? That is the furtest away from their nearest neigbor. I plot the top 25. 
+### And what are the most isolated cases? That is the furthest away from their nearest neighbor. I plot the top 25. 
 
 plot(city)
 points(crime, cex=.1)
@@ -223,7 +233,6 @@ mpp <- ppp(xy[,1], xy[,2], window = w, marks=crime$fcat)
 ## Warning: 20 points were rejected as lying outside the specified window
 ## Warning: data contain duplicated points
 
-
 ##We can split the mpp object by category (crime)
 spp <- split(mpp)
 plot(spp[1:4], main='')
@@ -235,7 +244,7 @@ intensity(p)
 (round(intensity(spp)*100000,3))
 
 ### Make a map of the densities of each type of crime. 
-plot(density(spp[1:15]), main='')
+plot(density(spp[c(3,6,7,1)]), main='')
 
 
 

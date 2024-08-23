@@ -32,8 +32,7 @@ library(adehabitatHR)
 ## Do some stuff to make our lives easier
 tmap_options(check.and.fix = TRUE)
 
-
-## Kernel density estimation using R
+#### Kernel density estimation using R ####
 
 ## load in the newhaven database
 load("Data/newhaven.RData")
@@ -76,7 +75,7 @@ projection(kde) <- CRS("+init=EPSG:27700")
 tm_shape(kde) + tm_raster("ud")
 
 
-### Hexagonal Binning
+#### Hexagonal Binning ####
 
 install.packages("fMultivar", depend = TRUE)
 
