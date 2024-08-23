@@ -19,8 +19,8 @@
 
 
 ## The K-function is a method used in spatial Point Pattern Analysis (PPA) to inspect the spatial distribution of a set of points. 
-## It allows the user to assess if the set of points is more or less clustered that what we could expect from a given distribution. 
-## Most of the time, the set of point is compared with a random distribution.
+## It allows the user to assess if the set of points is more or less clustered than what we could expect from a given distribution. 
+## Most of the time, the set of points is compared with a random distribution.
 
 library(spNetwork)
 library(tmap)
